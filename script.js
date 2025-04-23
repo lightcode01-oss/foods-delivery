@@ -28,15 +28,15 @@ function updateCart() {
     cartItemsContainer.innerHTML = ''; // Clear previous items
     cart.forEach((item, index) => {
         const cartItem = document.createElement('div');
-        cartItem.textContent = `${item.name} - $${item.price.toFixed(2)}`;
+        cartItem.textContent = `${item.name} - ₹${item.price.toFixed(2)}`;
         cartItemsContainer.appendChild(cartItem);
     });
-    totalPriceElement.textContent = `Total Price: $${totalPrice.toFixed(2)}`;
+    totalPriceElement.textContent = `Total Price: ₹${totalPrice.toFixed(2)}`;
 }
 
 // Clear the cart when the "Checkout" button is clicked
 document.getElementById('checkout-btn').addEventListener('click', () => {
-    alert(`Your total is $${totalPrice.toFixed(2)}. Thank you for your order!`);
+    alert(`Your total is ₹${totalPrice.toFixed(2)}. Thank you for your order!`);
     cart = [];
     totalPrice = 0;
     updateCart();
