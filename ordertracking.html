@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Order Tracking - Food Delivery</title>
+  <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+    header {
+      background-color: #f94a3d;
+      color: white;
+      padding: 1rem 2rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    main {
+      flex-grow: 1;
+      padding: 1rem 2rem;
+      max-width: 900px;
+      margin: 1rem auto 2rem auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .orders-list {
+      flex: 1 1 300px;
+      background: #fff4f2;
+      border: 1px solid #f94a3d;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(249, 74, 61, 0.2);
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .orders-list h2 {
+      color: #f94a3d;
+      margin-bottom: 1rem;
+    }
+    .order-item {
+      padding: 0.5rem;
+      border-bottom: 1px solid #f94a3d;
+      cursor: pointer;
+      font-weight: 600;
+      color: #555;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s ease;
+    }
+    .order-item:hover, .order-item.selected {
+      background-color: #f94a3d;
+      color: white;
+    }
+    .order-status {
+      font-weight: 700;
+    }
+    .order-details-container {
+      flex: 2 1 550px;
+      background: #fff4f2;
+      border: 1px solid #f94a3d;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(249, 74, 61, 0.2);
+      min-width: 300px;
+    }
+    .order-details-container h2 {
+      color: #f94a3d;
+      margin-bottom: 0.5rem;
+    }
+    .order-details p, .order-details ul {
+      margin: 0.5rem 0;
+    }
+    .order-details ul {
+      padding-left: 1.2rem;
+    }
+    #map {
+      height: 200px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      margin-top: 1rem;
+    }
+    .progress-bar {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin: 1rem 0 2rem 0;
+    }
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 10%;
+      right: 10%;
+      height: 4px;
+      background: #f94a3d;
+      opacity: 0.2;
+      transform: translateY(-50%);
+      z-index: 1;
+      border-radius: 2px;
+    }
+    .progress-step {
+      position: relative;
+      z-index: 2;
+      width: 25%;
+      text-align: center;
+      font-weight: 600;
+      color: #555;
+      cursor: default;
+    }
+    .progress-step .circle {
+      width: 30px;
+      height: 30px;
+      margin: 0 auto 0.5rem auto;
+      border-radius: 50%;
+      background: #f94a3d;
+      opacity: 0.2;
+      line-height: 30px;
+      color: white;
+      font-weight: bold;
+      user-select: none;
+      transition: background-color 0.3s ease, opacity 0.3s ease;
+    }
+    .progress-step.active .circle {
+      opacity: 1;
+      background: #f94a3d;
+    }
+    .progress-step.completed .circle {
+      background: #2ecc71;
+      opacity: 1;
+    }
+    .progress-step.completed {
+      color: #2ecc71;
+    }
+    .buttons {
+      display: flex;
+      justify-content: flex-start;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    button {
+      background-color: #f94a3d;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #ff6b5a;
+    }
+  </style>
+  <link href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" rel="stylesheet" />
+</head>
+<body>
+  <header>Order Tracking</header>
+  <main>
+    <section class="orders-list">
+      <h2>Recent Orders</h2>
+      <div id="ordersContainer">
+        <!-- Orders will be dynamically inserted here -->
+      </div>
+    </section>
+    <section class="order-details-container">
+      <h2>Order Details</h2>
+      <div class="order-details" id="orderDetails">
+        <p><strong>Order ID:</strong> <span id="orderId">Select an order</span></p>
+        <p><strong>Items:</strong></p>
+        <ul id="orderItems">
+          <li>Select an order to see items</li>
+        </ul>
+        <p><strong>Estimated Delivery Time:</strong> <span id="estimatedTime">-</span></p>
+      </div>
+      <div id="map"></div>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-step" data-step="1">
+          <div class="circle">1</div>
+          Order Placed
+        </div>
+        <div class="progress-step" data-step="2">
+          <div class="circle">2</div>
+          Preparing
+        </div>
+        <div class="progress-step" data-step="3">
+          <div class="circle">3</div>
+          Out for Delivery
+        </div>
+        <div class="progress-step" data-step="4">
+          <div class="circle">4</div>
+          Delivered
+        </div>
+      </div>
+      <div class="buttons">
+        <button id="refreshBtn" disabled>Refresh Status</button>
+        <button id="homeBtn">Home</button>
+      </div>
+    </section>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    // Sample orders data with coordinates for map
+    const sampleOrders = [
+      {
+        id: 'FD123456789',
+        items: [
+          { name: 'Margherita Pizza', quantity: 1 },
+          { name: 'Caesar Salad', quantity: 2 },
+          { name: 'Chocolate Cake', quantity: 1 }
+        ],
+        estimatedTime: '30 minutes',
+        progressStep: 1,
+        routeCoords: [
+          [37.7749, -122.4194], // Restaurant
+          [37.7799, -122.4149], // On the way
+          [37.7849, -122.4094]  // Customer
+        ]
+      },
+      {
+        id: 'FD987654321',
+        items: [
+          { name: 'Veggie Burger', quantity: 2 },
+          { name: 'French Fries', quantity: 1 }
+        ],
+        estimatedTime: '45 minutes',
+        progressStep: 2,
+        routeCoords: [
+          [37.7749, -122.4194],
+          [37.7760, -122.4150],
+          [37.7849, -122.4094]
+        ]
+      }
+    ];
+
+    // Save orders array to localStorage
+    function saveOrders(orders) {
+      localStorage.setItem('recentOrders', JSON.stringify(orders));
+    }
+
+    // Load orders array from localStorage
+    function loadOrders() {
+      const ordersData = localStorage.getItem('recentOrders');
+      if (ordersData) {
+        return JSON.parse(ordersData);
+      }
+      return null;
+    }
+
+    // Render list of recent orders
+    function renderOrdersList(orders) {
+      const container = document.getElementById('ordersContainer');
+      container.innerHTML = '';
+      if (!orders || orders.length === 0) {
+        container.innerHTML = '<p>No recent orders found.</p>';
+        return;
+      }
+      orders.forEach((order, index) => {
+        const div = document.createElement('div');
+        div.className = 'order-item';
+        div.dataset.index = index;
+        div.innerHTML = `
+          <span>${order.id}</span>
+          <span class="order-status">${getStatusText(order.progressStep)}</span>
+        `;
+        div.addEventListener('click', () => {
+          selectOrder(index);
+        });
+        container.appendChild(div);
+      });
+    }
+
+    // Get status text from progress step
+    function getStatusText(step) {
+      switch(step) {
+        case 1: return 'Order Placed';
+        case 2: return 'Preparing';
+        case 3: return 'Out for Delivery';
+        case 4: return 'Delivered';
+        default: return 'Unknown';
+      }
+    }
+
+    // Update order details UI
+    function updateOrderDetails(order) {
+      if (!order) {
+        document.getElementById('orderId').textContent = 'Select an order';
+        document.getElementById('orderItems').innerHTML = '<li>Select an order to see items</li>';
+        document.getElementById('estimatedTime').textContent = '-';
+        document.getElementById('refreshBtn').disabled = true;
+        clearMap();
+        return;
+      }
+      document.getElementById('orderId').textContent = order.id;
+      const itemsList = document.getElementById('orderItems');
+      itemsList.innerHTML = '';
+      order.items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.quantity} x ${item.name}`;
+        itemsList.appendChild(li);
+      });
+      document.getElementById('estimatedTime').textContent = order.estimatedTime;
+      document.getElementById('refreshBtn').disabled = false;
+      updateMap(order.routeCoords);
+    }
+
+    // Update progress bar UI
+    function updateProgressBar(step) {
+      const steps = document.querySelectorAll('.progress-step');
+      steps.forEach(s => {
+        s.classList.remove('active', 'completed');
+        const sStep = parseInt(s.getAttribute('data-step'));
+        if (sStep < step) {
+          s.classList.add('completed');
+        } else if (sStep === step) {
+          s.classList.add('active');
+        }
+      });
+    }
+
+    // Select an order from the list
+    let currentOrderIndex = null;
+    function selectOrder(index) {
+      currentOrderIndex = index;
+      const orders = loadOrders();
+      if (!orders || !orders[index]) return;
+      updateOrderDetails(orders[index]);
+      updateProgressBar(orders[index].progressStep);
+      highlightSelectedOrder();
+    }
+
+    // Highlight selected order in the list
+    function highlightSelectedOrder() {
+      const orderItems = document.querySelectorAll('.order-item');
+      orderItems.forEach(item => {
+        item.classList.remove('selected');
+      });
+      if (currentOrderIndex !== null) {
+        const selectedItem = document.querySelector(`.order-item[data-index="${currentOrderIndex}"]`);
+        if (selectedItem) {
+          selectedItem.classList.add('selected');
+        }
+      }
+    }
+
+    // Leaflet map initialization and update
+    let map;
+    let routeLine;
+    let markers = [];
+
+    function initMap() {
+      map = L.map('map').setView([37.7749, -122.4194], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+    }
+
+    function clearMap() {
+      if (routeLine) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+      }
+      markers.forEach(marker => map.removeLayer(marker));
+      markers = [];
+    }
+
+    function updateMap(coords) {
+      clearMap();
+      if (!coords || coords.length === 0) return;
+      routeLine = L.polyline(coords, {color: 'red'}).addTo(map);
+      coords.forEach((coord, idx) => {
+        let popupText = '';
+        if (idx === 0) popupText = 'Restaurant';
+        else if (idx === coords.length - 1) popupText = 'You';
+        else popupText = 'On the way';
+        const marker = L.marker(coord).addTo(map).bindPopup(popupText);
+        markers.push(marker);
+      });
+      map.fitBounds(routeLine.getBounds());
+    }
+
+    // Simulate progress update for current order
+    function simulateProgressUpdate() {
+      const orders = loadOrders();
+      if (currentOrderIndex === null || !orders || !orders[currentOrderIndex]) return;
+      const order = orders[currentOrderIndex];
+      if (order.progressStep < 4) {
+        order.progressStep++;
+        if (order.progressStep === 4) {
+          order.estimatedTime = 'Delivered';
+        }
+        saveOrders(orders);
+        updateOrderDetails(order);
+        updateProgressBar(order.progressStep);
+        renderOrdersList(orders);
+        highlightSelectedOrder();
+      }
+    }
+
+    // Auto refresh order progress every 10 seconds
+    let autoRefreshInterval;
+    function startAutoRefresh() {
+      autoRefreshInterval = setInterval(() => {
+        simulateProgressUpdate();
+      }, 10000);
+    }
+
+    // Initialize page
+    function init() {
+      initMap();
+      let orders = loadOrders();
+      if (!orders) {
+        saveOrders(sampleOrders);
+        orders = sampleOrders;
+      }
+      renderOrdersList(orders);
+      updateOrderDetails(null);
+
+      document.getElementById('refreshBtn').addEventListener('click', () => {
+        simulateProgressUpdate();
+      });
+
+      document.getElementById('homeBtn').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+
+      startAutoRefresh();
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>

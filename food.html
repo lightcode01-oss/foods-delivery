@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Items - FDelivery</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <!--=============== Boxicons ===============-->
+  <link
+  href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
+  rel="stylesheet"
+/>
+  <style>
+    /* Food items container */
+    .food-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .food-card {
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: var(--box-shadow);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    .food-card:hover {
+      transform: translateY(-5px);
+    }
+    .food-card img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .food-card h4 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+    .food-card .price {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--black-color);
+    }
+    .food-card .add-to-cart-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.3rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .food-card .add-to-cart-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="row d-flex container">
+              <a href="" class="logo d-flex">
+                <img src="./images/logo.png" alt="" />
+              </a>
+    
+              <ul class="nav-list d-flex">
+                <a href="index.html">Home</a>
+                
+                <a href="about.html">About</a>
+                
+                
+                <a href="">Contact</a>
+                <span class="close d-flex"><i class="bx bx-x"></i></span>
+              </ul>
+              <div class="cart-icon d-flex">
+                <button id="cartButton" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; color: inherit; font-size: 2rem;">
+                  <i class="bx bx-shopping-bag"></i>
+                  <span class="cart" id="cartCount" style="margin-left: 0.3rem; font-size: 1.4rem;">0</span>
+                </button>
+              </div>
+              
+    
+              <!-- Hamburger -->
+              <div class="hamburger d-flex">
+                <i class="bx bx-menu"></i>
+              </div>
+            </div>
+          </nav>
+        <header>
+            <h1 style="text-align:center; margin-top: 2rem;">Our Food Items</h1>
+        </header>
+        <main>
+            <div class="food-container" id="foodContainer">
+            <!-- Food items will be dynamically inserted here -->
+            </div>
+        </main>
+
+        <script>
+            async function getProducts() {
+            try {
+                const response = await fetch('./data/products.json');
+                const data = await response.json();
+                return data.products;
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                return [];
+            }
+            }
+
+            function addToCart(name, price, url) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push({ name, price, url });
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${name} added to cart!`);
+            // Optionally update cart count if needed
+            }
+
+            function displayFoodItems(items) {
+            const container = document.getElementById('foodContainer');
+            container.innerHTML = '';
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'food-card';
+
+                const img = document.createElement('img');
+                img.src = item.url;
+                img.alt = item.title;
+
+                const title = document.createElement('h4');
+                title.textContent = item.title;
+
+                const price = document.createElement('div');
+                price.className = 'price';
+                price.textContent = `₹ ${item.price}`;
+
+                const button = document.createElement('button');
+                button.className = 'add-to-cart-btn';
+                button.textContent = 'Add to Cart';
+                button.addEventListener('click', () => {
+                addToCart(item.title, item.price, item.url);
+                });
+
+                card.appendChild(img);
+                card.appendChild(title);
+                card.appendChild(price);
+                card.appendChild(button);
+
+                container.appendChild(card);
+            });
+            }
+
+            window.addEventListener('DOMContentLoaded', async () => {
+            const products = await getProducts();
+            displayFoodItems(products);
+            });
+        </script>
+        <script>
+          // Update cart count on cart icon
+          function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.length;
+            const cartCountEl = document.getElementById('cartCount');
+            if (cartCountEl) {
+              cartCountEl.innerText = count;
+            }
+          }
+          document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const cartButton = document.getElementById('cartButton');
+            if (cartButton) {
+              cartButton.addEventListener('click', () => {
+                window.location.href = 'cart.html';
+              });
+            }
+          });
+        </script>
+    </header>    
+</body>
+</html>

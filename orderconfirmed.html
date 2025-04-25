@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Order Confirmed - Food Delivery</title>
+  <link href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" rel="stylesheet" />
+  <!--=============== Boxicons ===============-->
+  <link
+  href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
+  rel="stylesheet"
+/>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+    header {
+      background-color: #f94a3d;
+      color: white;
+      padding: 1rem 2rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    main {
+      flex-grow: 1;
+      padding: 1rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 1rem auto 2rem auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    #map {
+      height: 400px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .info-box {
+      flex: 1 1 250px;
+      background: #fff4f2;
+      border: 1px solid #f94a3d;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(249, 74, 61, 0.2);
+    }
+    .info-box h2 {
+      margin-top: 0;
+      color: #f94a3d;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .milestones {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .milestones li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f94a3d;
+      font-weight: 600;
+      color: #555;
+      position: relative;
+    }
+    .milestones li.completed {
+      color: #2ecc71;
+    }
+    .milestones li.completed::before {
+      content: "✔";
+      position: absolute;
+      left: -1.5rem;
+      color: #2ecc71;
+      font-weight: bold;
+    }
+    .time-estimate {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f94a3d;
+      text-align: center;
+    }
+    #orderAgainContainer {
+      display: none;
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background-color: #f94a3d;
+      color: white;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(249, 74, 61, 0.4);
+    }
+    #orderAgainContainer h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    #orderAgainContainer button {
+      background-color: white;
+      color: #f94a3d;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #orderAgainContainer button:hover {
+      background-color: #ff6b5a;
+      color: white;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  
+  <header>Order Confirmed</header>
+  <main>
+    <div id="map"></div>
+    <div class="info-section">
+      <div class="info-box">
+        <h2>Delivery Status</h2>
+        <ul class="milestones" id="milestonesList">
+          <li class="completed">Order Accepted</li>
+          <li>Order Prepared</li>
+          <li>Picked Up</li>
+          <li>Delivered</li>
+        </ul>
+      </div>
+      <div class="info-box">
+        <h2>Estimated Delivery Time</h2>
+        <div class="time-estimate" id="timeEstimate">Calculating...</div>
+        <div id="weatherInfo" style="margin-top:1rem; font-size:1rem; color:#555;">
+          Loading weather...
+        </div>
+      </div>
+    </div>
+  <div id="orderAgainContainer" style="display:block;">
+    <h2>Your order is Confirmed & reach to you in very short period!</h2>
+    <h2>Enjoy your meal! 🍽️</h2>
+    <h2>Order food again for more delicious items.</h2>
+    <button id="orderAgainBtn">Order Food Again</button>
+    <div style="margin-top: 1.5rem; text-align: center;">
+      <p style="font-size: 1.2rem; font-weight: 600;">Want to explore more items?</p>
+      <button id="homeBtn" style="margin-top: 0.5rem; background-color: white; color: #f94a3d; border: none; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 700; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;">Home</button>
+    </div>
+  </div>
+
+  <div id="feedbackContainer" style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, #f94a3d 0%, #ff6b5a 100%); border-radius: 12px; box-shadow: 0 8px 20px rgba(249, 74, 61, 0.3); max-width: 900px; margin-left: auto; margin-right: auto; color: white; font-family: 'Poppins', sans-serif;">
+    <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center;">Rate Your Experience</h2>
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: center; gap: 1.5rem; font-weight: 700; font-size: 1.2rem;">
+      <label style="cursor: pointer;">
+        <input type="radio" name="rating" value="1" style="display: none;" />
+        <span style="color: #fff; user-select: none;" onmouseover="highlightStars(1)" onmouseout="resetStars()" onclick="selectStars(1)">⭐</span>
+      </label>
+      <label style="cursor: pointer;">
+        <input type="radio" name="rating" value="2" style="display: none;" />
+        <span style="color: #fff; user-select: none;" onmouseover="highlightStars(2)" onmouseout="resetStars()" onclick="selectStars(2)">⭐⭐</span>
+      </label>
+      <label style="cursor: pointer;">
+        <input type="radio" name="rating" value="3" style="display: none;" />
+        <span style="color: #fff; user-select: none;" onmouseover="highlightStars(3)" onmouseout="resetStars()" onclick="selectStars(3)">⭐⭐⭐</span>
+      </label>
+      <label style="cursor: pointer;">
+        <input type="radio" name="rating" value="4" style="display: none;" />
+        <span style="color: #fff; user-select: none;" onmouseover="highlightStars(4)" onmouseout="resetStars()" onclick="selectStars(4)">⭐⭐⭐⭐</span>
+      </label>
+      <label style="cursor: pointer;">
+        <input type="radio" name="rating" value="5" style="display: none;" />
+        <span style="color: #fff; user-select: none;" onmouseover="highlightStars(5)" onmouseout="resetStars()" onclick="selectStars(5)">⭐⭐⭐⭐⭐</span>
+      </label>
+    </div>
+    <div style="margin-bottom: 1.5rem;">
+      <label for="complaints" style="font-weight: 700; display: block; margin-bottom: 0.75rem;">Complaints / Feedback:</label>
+      <textarea id="complaints" rows="5" placeholder="Write your complaints or feedback here..." style="width: 95%; border: none; border-radius: 8px; padding: 1rem; font-size: 1rem; resize: vertical; box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3);"></textarea>
+    </div>
+    <button id="submitFeedbackBtn" style="background-color: white; color: #f94a3d; border: none; padding: 0.85rem 2rem; font-size: 1.1rem; font-weight: 700; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 12px rgba(255, 107, 90, 0.6); transition: background-color 0.3s ease;">
+      Submit
+    </button>
+  </div>
+
+  <script>
+    const stars = document.querySelectorAll('#feedbackContainer span');
+    let selectedRating = 0;
+
+    function highlightStars(rating) {
+      stars.forEach((star, index) => {
+        if (index < rating) {
+          star.style.color = '#ffdd57';
+          star.style.filter = 'drop-shadow(0 0 2px #ffdd57)';
+          star.style.transition = 'color 0.3s ease, filter 0.3s ease';
+        } else {
+          if (index < selectedRating) {
+            star.style.color = '#ffdd57';
+            star.style.filter = 'drop-shadow(0 0 2px #ffdd57)';
+          } else {
+            star.style.color = '#fff';
+            star.style.filter = 'none';
+          }
+          star.style.transition = 'color 0.3s ease, filter 0.3s ease';
+        }
+      });
+    }
+
+    function resetStars() {
+      stars.forEach((star, index) => {
+        if (index < selectedRating) {
+          star.style.color = '#ffdd57';
+          star.style.filter = 'drop-shadow(0 0 8px #ffdd57) brightness(1.2)';
+          star.style.transform = 'scale(1.3)';
+          star.style.textShadow = '0 0 8px #ffdd57';
+          star.style.transition = 'color 0.3s ease, filter 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease';
+        } else {
+          star.style.color = '#fff';
+          star.style.filter = 'none';
+          star.style.transform = 'scale(1)';
+          star.style.textShadow = 'none';
+          star.style.transition = 'color 0.3s ease, filter 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease';
+        }
+      });
+    }
+
+    function selectStars(rating) {
+      selectedRating = rating;
+      const radioInput = document.querySelector(`input[name="rating"][value="${rating}"]`);
+      if (radioInput) {
+        radioInput.checked = true;
+      }
+      resetStars();
+    }
+
+    // Add hover effect to submit button
+    const submitBtn = document.getElementById('submitFeedbackBtn');
+    submitBtn.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+    submitBtn.addEventListener('mouseenter', () => {
+      submitBtn.style.backgroundColor = '#ff6b5a';
+      submitBtn.style.color = 'white';
+      submitBtn.style.boxShadow = '0 6px 16px rgba(255, 107, 90, 0.8)';
+    });
+    submitBtn.addEventListener('mouseleave', () => {
+      submitBtn.style.backgroundColor = 'white';
+      submitBtn.style.color = '#f94a3d';
+      submitBtn.style.boxShadow = '0 4px 12px rgba(255, 107, 90, 0.6)';
+    });
+  </script>
+  </main>
+  <footer>© 2025 Food Delivery. All rights reserved.</footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    // Initialize map
+    const map = L.map('map').setView([37.7749, -122.4194], 13); // Default to San Francisco
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© AbhihubOpenStreetMap'
+    }).addTo(map);
+
+    // Simulated delivery route coordinates (example)
+    const routeCoords = [
+      [37.7749, -122.4194], // Restaurant
+      [37.7799, -122.4149], // On the way
+      [37.7849, -122.4094]  // Customer
+    ];
+
+    // Draw route polyline
+    const routeLine = L.polyline(routeCoords, {color: 'red'}).addTo(map);
+
+    // Add markers
+    const restaurantMarker = L.marker(routeCoords[0]).addTo(map).bindPopup('Restaurant');
+    const deliveryMarker = L.marker(routeCoords[1]).addTo(map).bindPopup('Delivery');
+    const customerMarker = L.marker(routeCoords[2]).addTo(map).bindPopup('You');
+
+    // Fit map to route
+    map.fitBounds(routeLine.getBounds());
+
+    // Simulate delivery progress and milestones
+    const milestones = document.querySelectorAll('#milestonesList li');
+    let currentMilestone = 0;
+
+    function updateMilestone() {
+      if (currentMilestone < milestones.length) {
+        milestones[currentMilestone].classList.add('completed');
+        currentMilestone++;
+      }
+    }
+
+    // Simulate milestone updates every 5 seconds
+    setInterval(() => {
+      updateMilestone();
+      if (currentMilestone >= milestones.length) {
+        clearInterval(this);
+      }
+    }, 5000);
+
+    // Simulate time estimate updates with traffic/weather conditions
+    const timeEstimateEl = document.getElementById('timeEstimate');
+    let baseTime = 30; // base delivery time in minutes
+
+    // Simulated tracking progress (0 to 1)
+    let progress = 0;
+
+    function updateTimeEstimate() {
+      // Simulate traffic/weather delay between -5 to +10 minutes
+      const delay = Math.floor(Math.random() * 16) - 5;
+      // Adjust base time by progress (less time as progress increases)
+      let estimatedTime;
+      if (progress >= 1) {
+        estimatedTime = 0;
+      } else {
+        estimatedTime = Math.max(baseTime * (1 - progress) + delay, 0);
+        if (progress >= 0.9) {
+          // Decrease estimated time faster near delivery
+          estimatedTime = Math.max(estimatedTime - 10, 0);
+        }
+      }
+      if (progress >= 0.95 || currentMilestone >= milestones.length) {
+        timeEstimateEl.textContent = "Yay! It's reached 🎉";
+      } else {
+        timeEstimateEl.textContent = estimatedTime.toFixed(0) + ' minutes';
+      }
+
+      if (estimatedTime <= 0) {
+        clearInterval(progressInterval);
+        showDeliveryPopup();
+      }
+    }
+
+    updateTimeEstimate();
+
+    // Update progress every 10 seconds
+    const progressInterval = setInterval(() => {
+      if (progress < 1) {
+        progress += 0.1;
+        updateTimeEstimate();
+      }
+    }, 10000);
+
+    function showDeliveryPopup() {
+      // Hide alert and show the new container instead
+      document.getElementById('orderAgainContainer').style.display = 'block';
+    }
+
+    // Add event listener for order again button
+    document.getElementById('orderAgainBtn').addEventListener('click', () => {
+      window.location.href = 'food.html';
+    });
+
+    // Add event listener for home button
+    document.getElementById('homeBtn').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    // Push notifications simulation
+    function showNotification(message) {
+      if (!("Notification" in window)) {
+        alert(message);
+      } else if (Notification.permission === "granted") {
+        new Notification("Food Delivery", { body: message });
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            new Notification("Food Delivery", { body: message });
+          }
+        });
+      }
+    }
+
+    // Simulated weather data
+    const weatherInfoEl = document.getElementById('weatherInfo');
+
+    function updateWeather() {
+      // Simulate weather conditions
+      const conditions = ['Sunny', 'Cloudy', 'Rainy', 'Windy', 'Stormy'];
+      const temps = [25, 22, 18, 20, 16];
+      const index = Math.floor(Math.random() * conditions.length);
+      weatherInfoEl.textContent = `Weather: ${conditions[index]}, ${temps[index]}°C`;
+    }
+
+    updateWeather();
+    setInterval(updateWeather, 15000);
+
+    const milestoneMessages = [
+      "Order accepted",
+      "Order prepared",
+      "Order picked up",
+      "Order delivered"
+    ];
+
+    let notificationIndex = 0;
+
+    function notifyMilestone() {
+      if (notificationIndex < milestoneMessages.length) {
+        showNotification(milestoneMessages[notificationIndex]);
+        notificationIndex++;
+      }
+    }
+
+    // Notify on each milestone update
+    setInterval(() => {
+      notifyMilestone();
+      if (notificationIndex >= milestoneMessages.length) {
+        clearInterval(this);
+      }
+    }, 5000);
+  </script>
+  <script>
+    const homeBtn = document.getElementById('homeBtn');
+    homeBtn.addEventListener('mouseenter', () => {
+      homeBtn.style.backgroundColor = '#ff6b5a';
+      homeBtn.style.color = 'white';
+      homeBtn.style.boxShadow = '0 6px 16px rgba(255, 107, 90, 0.8)';
+    });
+    homeBtn.addEventListener('mouseleave', () => {
+      homeBtn.style.backgroundColor = 'white';
+      homeBtn.style.color = '#f94a3d';
+      homeBtn.style.boxShadow = 'none';
+    });
+  </script>
+
+  <script>
+    document.getElementById('submitFeedbackBtn').addEventListener('click', () => {
+      const rating = document.querySelector('input[name="rating"]:checked');
+      const complaints = document.getElementById('complaints').value.trim();
+
+      if (!rating) {
+        alert('Please select a rating.');
+        return;
+      }
+
+      // For demonstration, just alert the values
+      alert(`Rating: ${rating.value}\nComplaints: ${complaints || 'None'}`);
+
+      // Clear inputs after submission
+      document.querySelector('input[name="rating"]:checked').checked = false;
+      document.getElementById('complaints').value = '';
+    });
+  </script>
+</body>
+</html>

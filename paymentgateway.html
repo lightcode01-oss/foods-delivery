@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payment Gateway - Food Delivery</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .payment-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #f94a3d;
+      margin-bottom: 1.5rem;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .tab {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+      color: #555;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .tab.active {
+      border-color: #f94a3d;
+      color: #f94a3d;
+    }
+    form {
+      display: none;
+    }
+    form.active {
+      display: block;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid #ccc;
+      border-radius: 0.3rem;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 1rem;
+      background-color: #f94a3d;
+      color: white;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #d43c31;
+    }
+    .paypal-info {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="payment-container">
+    <h1>Complete Your Payment</h1>
+    <div id="cartTotalDisplay" style="text-align:center; font-size:1.5rem; margin-bottom:1rem; color:#f94a3d;">
+      Total Amount: $0.00
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="creditCard">Credit Card / Debit Card</div>
+      <div class="tab" data-tab="paypal">Online Payment</div>
+    </div>
+
+    <form id="creditCardForm" class="active">
+      <label for="cardName">Name on Card</label>
+      <input type="text" id="cardName" name="cardName" required />
+
+      <label for="cardNumber">Card Number</label>
+      <input type="text" id="cardNumber" name="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" required />
+
+      <label for="expiryDate">Expiry Date</label>
+      <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" maxlength="5" required />
+
+      <label for="cvv">CVV</label>
+      <input type="password" id="cvv" name="cvv" maxlength="4" required />
+
+      <button type="submit">Pay Now</button>
+    </form>
+
+    <form id="paypalForm">
+      <div class="paypal-info">
+        <label for="cardNumber">UPI ID</label>
+        <input type="text" id="cardNumber" name="UPI id" maxlength="14" placeholder="yourupiid@yoursuffix" required />
+        
+        
+      </div>
+      <button type="submit">Pay Now</button>
+    </form>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const creditCardForm = document.getElementById('creditCardForm');
+    const paypalForm = document.getElementById('paypalForm');
+
+    // Display total amount from cart
+    function displayCartTotal() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      let total = 0;
+      cart.forEach(item => {
+        total += parseFloat(item.price);
+      });
+      const totalDisplay = document.getElementById('cartTotalDisplay');
+      totalDisplay.textContent = `Total Amount: $${total.toFixed(2)}`;
+    }
+
+    displayCartTotal();
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        if (tab.dataset.tab === 'creditCard') {
+          creditCardForm.classList.add('active');
+          paypalForm.classList.remove('active');
+        } else {
+          creditCardForm.classList.remove('active');
+          paypalForm.classList.add('active');
+        }
+      });
+    });
+
+    creditCardForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Your payment has been successfully paid!');
+      // Clear cart after payment
+      localStorage.removeItem('cart');
+      window.location.href = 'orderconfirmed.html';
+    });
+
+    paypalForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Your payment has been successfully paid!');
+      // Clear cart after payment
+      localStorage.removeItem('cart');
+      window.location.href = 'orderconfirmed.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopping Cart - FDelivery</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <style>
+    /* Additional styles for cart page */
+    .header {
+    min-height: 100%;
+    background: linear-gradient(45deg, rgba(249, 74, 61, 0.1) 60%, rgba(255, 229, 7, 0.1));
+    }
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+    }
+    .cart-container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: var(--box-shadow);
+    }
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .cart-items {
+      margin-bottom: 2rem;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--grey-color);
+      padding: 1rem 0;
+    }
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-right: 1.5rem;
+      border-radius: 0.3rem;
+    }
+    .cart-item-details {
+      flex-grow: 1;
+    }
+    .cart-item-details h5 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.6rem;
+      color: var(--black-color);
+    }
+    .cart-item-details span {
+      font-size: 1.4rem;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+    .cart-item-quantity {
+      margin-left: 1rem;
+      font-size: 1.4rem;
+    }
+    .cart-total {
+      text-align: right;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 2rem;
+    }
+    .checkout-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 1.6rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-bottom: 3rem;
+    }
+    .billing-form {
+      max-width: 600px;
+      margin: auto;
+    }
+    .billing-form h2 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .billing-form label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: 1.4rem;
+    }
+    .billing-form input, .billing-form select {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--grey-color);
+      border-radius: 0.3rem;
+      font-size: 1.4rem;
+    }
+    .billing-form button {
+      width: 100%;
+      padding: 1rem;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 1.6rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="navbar">
+      <div class="row d-flex container">
+        <a href="" class="logo d-flex">
+          <img src="./images/logo.png" alt="" />
+        </a>
+
+        <ul class="nav-list d-flex">
+          <a href="index.html">Home</a>
+          <a href="about.html">About</a>
+          
+          <a href="food.html">Food</a>
+          
+          <a href="">Contact</a>
+          <span class="close d-flex"><i class="bx bx-x"></i></span>
+        </ul>
+      </div>
+  
+    </nav>
+  
+
+
+    <div class="cart-container">
+    <h1>Your Shopping Cart</h1>
+    <div class="cart-items" id="cartItemsContainer">
+      <!-- Cart items will be dynamically inserted here -->
+    </div>
+    <div class="cart-total" id="cartTotal">Total: $0.00</div>
+    <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+
+    <form class="billing-form" id="billingForm" style="display:none;">
+      <h2>Billing Details</h2>
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="fullName" required />
+
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="address">Address</label>
+      <input type="text" id="address" name="address" required />
+
+      <label for="city">City</label>
+      <input type="text" id="city" name="city" required />
+
+      <label for="state">State/Province</label>
+      <input type="text" id="state" name="state" required />
+
+      <label for="zip">Zip/Postal Code</label>
+      <input type="text" id="zip" name="zip" required />
+
+      <label for="paymentMethod">Payment Method</label>
+      <select id="paymentMethod" name="paymentMethod" required>
+        <option value="">Select Payment Method</option>
+        <option value="creditCard">ONLINE PAYMENT / DEBIT OR CREDIT CARD</option>
+        
+        <option value="cod">CASH ON DELIVERY</option>
+      </select>
+
+      <button type="submit">Place Order</button>
+    </form>
+    </div>
+
+    <script>
+    // Retrieve cart from localStorage or initialize empty
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    const cartItemsContainer = document.getElementById('cartItemsContainer');
+    const cartTotalEl = document.getElementById('cartTotal');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const billingForm = document.getElementById('billingForm');
+
+    function renderCart() {
+      cartItemsContainer.innerHTML = '';
+      let totalPrice = 0;
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
+        cartTotalEl.textContent = 'Total: $0.00';
+        checkoutBtn.style.display = 'none';
+        return;
+      }
+      checkoutBtn.style.display = 'block';
+      cart.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('cart-item');
+
+        const img = document.createElement('img');
+        img.src = item.url;
+        img.alt = item.name;
+
+        const detailsDiv = document.createElement('div');
+        detailsDiv.classList.add('cart-item-details');
+
+        const nameEl = document.createElement('h5');
+        nameEl.textContent = item.name;
+
+        const priceEl = document.createElement('span');
+        priceEl.textContent = `$${item.price}`;
+
+        detailsDiv.appendChild(nameEl);
+        detailsDiv.appendChild(priceEl);
+
+        // Add remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'Remove';
+        removeBtn.style.marginLeft = '1rem';
+        removeBtn.style.padding = '0.3rem 0.6rem';
+        removeBtn.style.backgroundColor = '#dc3545';
+        removeBtn.style.color = 'white';
+        removeBtn.style.border = 'none';
+        removeBtn.style.borderRadius = '0.3rem';
+        removeBtn.style.cursor = 'pointer';
+
+        removeBtn.addEventListener('click', () => {
+          cart.splice(index, 1);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        });
+
+        detailsDiv.appendChild(removeBtn);
+
+        itemDiv.appendChild(img);
+        itemDiv.appendChild(detailsDiv);
+
+        cartItemsContainer.appendChild(itemDiv);
+
+        totalPrice += parseFloat(item.price);
+      });
+      cartTotalEl.textContent = `Total: $${totalPrice.toFixed(2)}`;
+    }
+
+    renderCart();
+
+checkoutBtn.addEventListener('click', () => {
+  // Show billing form on clicking proceed to checkout
+  billingForm.style.display = 'block';
+  checkoutBtn.style.display = 'none';
+});
+
+billingForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const paymentMethodSelect = document.getElementById('paymentMethod');
+  const selectedMethod = paymentMethodSelect.value;
+  if (selectedMethod === 'creditCard' || selectedMethod === 'paypal') {
+    // Redirect to payment gateway page
+    window.location.href = 'paymentgateway.html';
+  } else if (selectedMethod === 'cod') {
+    alert('Order placed successfully! Thank you for your purchase.');
+    cart = [];
+    localStorage.setItem('cart', JSON.stringify(cart));
+    renderCart();
+    billingForm.style.display = 'none';
+    checkoutBtn.style.display = 'block';
+    window.location.href = 'orderconfirmed.html';
+  } else {
+    alert('Please select a payment method.');
+  }
+});
+</script>
+  </header>  
+</body>
+</html
