@@ -102,7 +102,7 @@ const addAddToCartListeners = () => {
       const card = e.target.closest(".card");
       const name = card.querySelector("h4").textContent;
       const priceText = card.querySelector(".price .color").textContent;
-      const price = priceText.replace("$", "");
+      const price = priceText.replace("₹", "");
       const url = card.querySelector(".image img").src;
       addToCart(name, price, url);
     });
@@ -128,6 +128,7 @@ window.addEventListener("DOMContentLoaded", async function () {
   const products = await getProducts();
   displayProductItems(products);
   addAddToCartListeners();
+  updateCartDisplay(); // Initialize cart count display on page load
 });
 
 /* ========== Display Products =========== */
@@ -146,9 +147,9 @@ const displayProductItems = (items) => {
                   </div>
                   <h4>${product.title}</h4>
                   <div class="price">
-                    <span>Price</span><span class="color">$${product.price}</span>
+                    <span>Price</span><span class="color">₹${product.price}</span>
                   </div>
-                  <div class="button btn add-to-cart-btn">addtocart</div>
+                  <div class="button btn add-to-cart-btn">ADD TO CART +</div>
                 </div>
               </div>
                   `

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +18,8 @@
       max-width: 1200px;
       margin: 2rem auto;
       padding: 0 1rem;
-      display: grid;
+      display: flex;
+      flex-direction: row;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 1.5rem;
     }
@@ -27,7 +29,8 @@
       box-shadow: var(--box-shadow);
       padding: 1rem;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      gap: 2.5rem;
       align-items: center;
       text-align: center;
       transition: transform 0.3s ease;
@@ -66,7 +69,38 @@
     .food-card .add-to-cart-btn:hover {
       background-color: #0056b3;
     }
-  </style>
+    </style>
+    <style>
+      /* Fade-in animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.6s ease forwards;
+      }
+      /* Enhanced hover effect */
+      .food-card:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+    /* Category column styling */
+    .category-column {
+      align-items: last baseline;
+      size: 10px;
+      display:flex;
+      flex-direction : column;
+      flex-wrap: wrap;
+      
+    }
+    </style>
 </head>
 
 <body>
@@ -101,7 +135,7 @@
             </div>
           </nav>
         <header>
-            <h1 style="text-align:center; margin-top: 2rem;">Our Food Items</h1>
+            <h1 style="text-align:center; margin-top: 2rem;">OUR FOOD ITEMS</h1>
         </header>
         <main>
             <div class="food-container" id="foodContainer">
@@ -132,35 +166,86 @@
             function displayFoodItems(items) {
             const container = document.getElementById('foodContainer');
             container.innerHTML = '';
+
+            // Group items by category
+            const categories = {};
             items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'food-card';
+                if (!categories[item.category]) {
+                    categories[item.category] = [];
+                }
+                categories[item.category].push(item);
+            });
 
-                const img = document.createElement('img');
-                img.src = item.url;
-                img.alt = item.title;
+            // Create a container for categories with grid layout
+            const categoriesContainer = document.createElement('div');
+            categoriesContainer.style.display = 'grid';
+            categoriesContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+            categoriesContainer.style.gap = '2rem';
 
-                const title = document.createElement('h4');
-                title.textContent = item.title;
+            // For each category, create a column with heading and food cards
+            for (const category in categories) {
+                const categoryColumn = document.createElement('div');
+                categoryColumn.className = 'category-column';
 
-                const price = document.createElement('div');
-                price.className = 'price';
-                price.textContent = `₹ ${item.price}`;
+                const categoryTitle = document.createElement('h3');
+                categoryTitle.textContent = category;
+                categoryTitle.style.textAlign = 'center';
+                categoryTitle.style.marginBottom = '1rem';
+                categoryTitle.style.color = 'var(--primary-color)';
+                categoryTitle.style.fontSize = '2.5rem';
+                categoryTitle.style.fontWeight = '800';
+                categoryTitle.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+                categoryTitle.style.textTransform = 'uppercase';
+                categoryTitle.style.letterSpacing = '2px';
+                categoryTitle.style.borderBottom = '3px solid var(--primary-color)';
+                categoryTitle.style.paddingBottom = '0.5rem';
+                categoryTitle.style.marginLeft = 'auto';
+                categoryTitle.style.marginRight = 'auto';
+                categoryColumn.appendChild(categoryTitle);
 
-                const button = document.createElement('button');
-                button.className = 'add-to-cart-btn';
-                button.textContent = 'Add to Cart';
-                button.addEventListener('click', () => {
-                addToCart(item.title, item.price, item.url);
+                const itemsRow = document.createElement('div');
+                itemsRow.style.display = 'flex';
+                itemsRow.style.flexDirection = 'row';
+                itemsRow.style.flexWrap = 'wrap';
+                itemsRow.style.justifyContent = 'center';
+                itemsRow.style.gap = '1rem';
+
+                categories[category].forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'food-card fade-in';
+
+                    const img = document.createElement('img');
+                    img.src = item.url;
+                    img.alt = item.title;
+
+                    const title = document.createElement('h4');
+                    title.textContent = item.title;
+
+                    const price = document.createElement('div');
+                    price.className = 'price';
+                    price.textContent = `₹ ${item.price}`;
+
+                    const button = document.createElement('button');
+                    button.className = 'add-to-cart-btn';
+                    button.textContent = 'Add to Cart';
+                    button.addEventListener('click', () => {
+                        addToCart(item.title, item.price, item.url);
+                    });
+
+                    card.appendChild(img);
+                    card.appendChild(title);
+                    card.appendChild(price);
+                    card.appendChild(button);
+
+                    itemsRow.appendChild(card);
                 });
 
-                card.appendChild(img);
-                card.appendChild(title);
-                card.appendChild(price);
-                card.appendChild(button);
+                categoryColumn.appendChild(itemsRow);
 
-                container.appendChild(card);
-            });
+                categoriesContainer.appendChild(categoryColumn);
+            }
+
+            container.appendChild(categoriesContainer);
             }
 
             window.addEventListener('DOMContentLoaded', async () => {

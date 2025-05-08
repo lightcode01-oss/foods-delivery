@@ -1,3 +1,4 @@
+
 /* ========== Google Fonts =========== */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 /* ========== CSS Variables =========== */
@@ -1026,4 +1027,166 @@ img {
   color: var(--primary-color);
   border-top: 1px solid var(--grey-color);
   padding-top: 0.5rem;
+}
+
+/* AI Bot Button Styles */
+#aiBotButton {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  border-radius: 50%;
+  width: 5rem;
+  height: 5rem;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(249, 74, 61, 0.6);
+  cursor: pointer;
+  z-index: 10001;
+  transition: background-color 0.3s ease;
+}
+
+#aiBotButton:hover {
+  background-color: var(--red-color-2);
+}
+
+/* AI Bot Chat Window Styles */
+.ai-bot-chat-window {
+  position: fixed;
+  bottom: 8rem;
+  right: 2rem;
+  width: 320px;
+  max-height: 480px;
+  background-color: var(--white-color);
+  border-radius: 1rem;
+  box-shadow: var(--box-shadow);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10002;
+  font-size: 1.4rem;
+  color: var(--black-color);
+}
+
+.ai-bot-chat-window.active {
+  display: flex;
+}
+
+.ai-bot-header {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ai-bot-header button {
+  background: transparent;
+  border: none;
+  color: var(--white-color);
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.ai-bot-messages {
+  flex-grow: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background-color: #f8f8f8;
+}
+
+.ai-bot-message {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.ai-bot-message.user {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  align-self: flex-end;
+}
+
+.ai-bot-message.bot {
+  background-color: var(--grey-color);
+  color: var(--black-color);
+  align-self: flex-start;
+}
+
+.ai-bot-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.ai-bot-option-button {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: background-color 0.3s ease;
+  flex: 1 1 calc(50% - 0.5rem);
+  text-align: center;
+}
+
+.ai-bot-option-button:hover {
+  background-color: var(--red-color-2);
+}
+
+.ai-bot-form {
+  display: flex;
+  border-top: 1px solid var(--grey-color);
+}
+
+.ai-bot-form input[type="text"] {
+  flex-grow: 1;
+  border: none;
+  padding: 1rem;
+  font-size: 1.4rem;
+  border-radius: 0 0 0 1rem;
+  outline: none;
+}
+
+.ai-bot-form button {
+  background-color: var(--primary-color);
+  border: none;
+  color: var(--white-color);
+  padding: 0 1.5rem;
+  font-size: 1.8rem;
+  border-radius: 0 0 1rem 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ai-bot-form button:hover {
+  background-color: var(--red-color-2);
+}
+
+/* Voice input button active state */
+#voiceInputButton.active {
+  color: #e83b2e; /* red color to indicate active */
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    text-shadow: 0 0 5px #e83b2e, 0 0 10px #e83b2e, 0 0 20px #e83b2e;
+  }
+  50% {
+    text-shadow: 0 0 10px #ff6f61, 0 0 20px #ff6f61, 0 0 30px #ff6f61;
+  }
+  100% {
+    text-shadow: 0 0 5px #e83b2e, 0 0 10px #e83b2e, 0 0 20px #e83b2e;
+  }
 }

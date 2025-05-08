@@ -212,8 +212,7 @@
           <span data-filter="Fast Food">Fast Food</span>
           <span data-filter="Rice Menu">Rice Menu</span>
           <span data-filter="Desserts">Desserts</span>
-          <span data-filter="Coffee">Coffee</span>
-          <span data-filter="Pizza">Pizza</span>
+          
         </div>
         <div class="products">
           <div class="swiper mySwiper">
@@ -228,11 +227,8 @@
                   <span><i class="bx bxs-star"></i></span>
                   <span><i class="bx bxs-star"></i></span>
                   </div>
-                  <h4>Crispy Fried Chicken</h4>
-                  <div class="price">
-                    <span>Price</span><span class="color">₹ 13.00</span>
-                  </div>
-                  <div class="button">addtocart</div>
+                  
+                  <div class="button">ADD TO CART +</div>
                 </div>
               </div> 
             </div>
@@ -414,5 +410,26 @@
     <script src="./js/testimonial.js"></script>
     <script src="./js/products.js"></script>
     <script src="./js/main.js"></script>
+    <!-- AI Bot Button -->
+    <button id="aiBotButton" aria-label="Chat with AI Support" title="Chat with AI Support">
+      <i class="bx bx-message-rounded-dots"></i>
+    </button>
+
+    <!-- AI Bot Chat Window -->
+    <div id="aiBotChatWindow" class="ai-bot-chat-window">
+      <div class="ai-bot-header">
+        <span>Help & Support</span>
+        <button id="aiBotCloseButton" aria-label="Close Chat Window">&times;</button>
+      </div>
+      <div id="aiBotMessages" class="ai-bot-messages"></div>
+<form id="aiBotForm" class="ai-bot-form" style="display: flex; align-items: center;">
+  <input type="text" id="aiBotInput" placeholder="Type your message..." autocomplete="off" required style="flex-grow: 1; padding-right: 2.5rem;" />
+  <button type="submit" aria-label="Send Message" style="margin-left: 0.5rem;"><i class="bx bx-send"></i></button>
+  <button type="button" id="voiceInputButton" aria-label="Start voice input" title="Start voice input" style="background: none; border: none; cursor: pointer; margin-left: 0.5rem; font-size: 1.5rem; color: #007bff;">
+    <i class="bx bx-microphone"></i>
+  </button>
+</form>
+    </div>
+
   </body>
 </html>
