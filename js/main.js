@@ -144,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Handle want a call command
     // Handle specific follow-up inputs for Menu Inquiry
     if (input === 'popular') {
       appendMessage("Our popular items are: Crispy Fried Chicken, French Fries, and Ice Cream.", 'bot');
