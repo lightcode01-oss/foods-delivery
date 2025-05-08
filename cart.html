@@ -146,7 +146,7 @@
     <div class="cart-items" id="cartItemsContainer">
       <!-- Cart items will be dynamically inserted here -->
     </div>
-    <div class="cart-total" id="cartTotal">Total: $0.00</div>
+    <div class="cart-total" id="cartTotal">Total: ₹0.00</div>
     <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
 
     <form class="billing-form" id="billingForm" style="display:none;">
@@ -195,7 +195,7 @@
       let totalPrice = 0;
       if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
-        cartTotalEl.textContent = 'Total: $0.00';
+        cartTotalEl.textContent = 'Total: ₹0.00';
         checkoutBtn.style.display = 'none';
         return;
       }
@@ -215,7 +215,7 @@
         nameEl.textContent = item.name;
 
         const priceEl = document.createElement('span');
-        priceEl.textContent = `$${item.price}`;
+        priceEl.textContent = `₹${item.price}`;
 
         detailsDiv.appendChild(nameEl);
         detailsDiv.appendChild(priceEl);
@@ -246,7 +246,7 @@
 
         totalPrice += parseFloat(item.price);
       });
-      cartTotalEl.textContent = `Total: $${totalPrice.toFixed(2)}`;
+      cartTotalEl.textContent = `Total: ₹${totalPrice.toFixed(2)}`;
     }
 
     renderCart();

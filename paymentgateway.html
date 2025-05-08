@@ -97,7 +97,7 @@
   <div class="payment-container">
     <h1>Complete Your Payment</h1>
     <div id="cartTotalDisplay" style="text-align:center; font-size:1.5rem; margin-bottom:1rem; color:#f94a3d;">
-      Total Amount: $0.00
+      Total Amount: ₹0.00
     </div>
     <div class="tabs">
       <div class="tab active" data-tab="creditCard">Credit Card / Debit Card</div>
@@ -144,7 +144,7 @@
         total += parseFloat(item.price);
       });
       const totalDisplay = document.getElementById('cartTotalDisplay');
-      totalDisplay.textContent = `Total Amount: $${total.toFixed(2)}`;
+      totalDisplay.textContent = `Total Amount: ₹${total.toFixed(2)}`;
     }
 
     displayCartTotal();
